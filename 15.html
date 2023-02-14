@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <div class="box">
+            <!-- 结构上设置的 data-xxx="xxx" 设定自定义属性 -->
+            <button data-index="0">1</button>
+            <button data-index="1">2</button>
+            <button data-index="2">3</button>
+            <button data-index="3">4</button>
+            <button data-index="4">5</button>
+        </div>
+    </body>
+</html>
+<script>
+    let box = document.querySelector('.box'),
+        buttons = document.querySelectorAll('button');
+    console.log(box, buttons);
+
+    // 事件绑定也是异步的
+    // i 是全局的
+    /* let i = 0;
+    for (; i < buttons.length; i++) {
+        buttons[i].onclick = function () {
+            console.log(`索引是:${i}`); // => 5 5 5 5 5
+        };
+    } */
+
+    // 解决方案一:闭包
+    /* for (let i = 0; i < buttons.length; i++) {
+        buttons[i].onclick = function () {
+            console.log(`索引是:${i}`); // => 0 1 2 3 4
+        };
+    } */
+
+    /* let i = 0;
+    for (; i < buttons.length; i++) {
+        (function (i) {
+            buttons[i].onclick = function () {
+                console.log(`索引是:${i}`); // => 0 1 2 3 4
+            };
+        })(i);
+    } */
+
+    /* let i = 0;
+    for (; i < buttons.length; i++) {
+        buttons[i].onclick = (function (i) {
+            return function () {
+                console.log(`索引是:${i}`); // => 0 1 2 3 4
+            };
+        })(i);
+    } */
+
+    /* let i = 0;
+    for (; i < buttons.length; i++) {
+        let fn = function (i) {
+            console.log(`索引是:${i}`); // => 0 1 2 3 4
+        };
+        buttons[i].onclick = fn.bind(null, i);
+    } */
+
+    /* buttons.forEach((item, index) => { // => 自带forEach
+        item.onclick = function () {
+            console.log(`索引是:${index}`); // => 0 1 2 3 4
+        };
+    }); */
+
+    // 命令式编程: how 如何去做，我们自己管控每一个执行的步骤 过程
+    // 函数式编程: 把处理步骤封装成为函数，后期基于函数处理即可 what 结果
+
+    // 解决方案2:自定义属性
+    // buttons是一个节点集合NodeList,集合中的每一项是一个元素对象[对象、堆内存:内置的属性和方法]
+    /* let i = 0;
+    for (; i < buttons.length; i++) {
+        // 每一轮循环的时候，我们把当前这一轮的索引，基于自定义属性myIndex，存储到元素对象的堆内存中
+        buttons[i].myIndex = i;
+        buttons[i].onclick = function () {
+            // this:当前点击的这个元素对象
+            console.log(`索引是${this.myIndex}`);
+        };
+    } */
+
+    // 解决方案3:事件委托
+    let data = document.querySelector('.box');
+    data.onclick = function (ev) {
+        console.log(ev);
+        let target = ev.target;
+        if (target.tagName === 'BUTTON') {
+            // 点击的是BOX盒子中的按钮
+            console.log(`索引是${target.getAttribute('data-index')}`);
+        }
+    };
+    /**
+     *
+     * setAttribute getAttribute 操作DOM结构
+     * 设置自定义属性   元素对象.myIndex=0 操作DOM元素对象的堆内存空间
+     * vue中的事件处理 就是DOM二级事件一个个的绑定 [vue中的事件处理也可以通过事件委托来完成]
+     * react中的事件处理 是事件委托 [react中有合成事件的概念]
+     */
+</script>
