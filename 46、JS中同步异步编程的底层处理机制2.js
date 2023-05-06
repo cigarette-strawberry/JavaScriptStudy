@@ -26,7 +26,7 @@ let p1 = new Promise((resolve, reject) => {
     resolve(10)
   }, 1000)
 })
-// @1 如果此时不知道p1的状态，会把 onfulfilled 、 onrejected 存储到对应的事件池中
+// @2 如果此时不知道p1的状态，会把 onfulfilled 、 onrejected 存储到对应的事件池中 [理解为：进入WebAPI去监听，只有知道实例的状态，才可以执行]；resolve/reject执行，立即修改实例的状态和值，也决定了WebAPI中监听的方法（onfulfilled 、 onrejected）哪一个去执行 [挪至到EventQueue中，异步微任务队列]；等待其它同步代码执行完，再拿出来执行
 p1.then(
   function onfulfilled(result) {
     console.log(`成功: ${result}`)
@@ -52,7 +52,7 @@ Promise.resolve(10)
   //    @2 如果方法执行返回的是一个全新的Promise实例「BB」，那BB最后的状态，直接决定AA的状态
   .then(
     function onfulfilled(result) {
-      console.log('成功: ${result}')
+      console.log(`成功: ${result}`)
       return Promise.reject(0)
     },
     function onrejected(reason) {
